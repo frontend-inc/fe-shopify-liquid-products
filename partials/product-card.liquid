@@ -8,7 +8,7 @@
   <a href="{{ product.url }}" class="block overflow-hidden rounded-lg bg-muted {{ image_ratio }}">
     {% if product.featured_image %}
       <img
-        src="{{ product.featured_image | img_url: 'medium' }}"
+        src="{{ product.featured_image | img_url }}"
         alt="{{ product.featured_image.alt | escape | default: product.title }}"
         class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
         loading="lazy"
