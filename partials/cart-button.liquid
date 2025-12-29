@@ -1,0 +1,26 @@
+{% assign show_count = show_count | default: true %}
+{% assign icon_class = icon_class | default: 'text-xl' %}
+
+<div
+  x-data="cartButton()"
+  x-init="fetchCart()"
+  @cart:updated.window="fetchCart()"
+>
+  <a
+    href="/cart"
+    class="p-2 hover:bg-accent rounded-md transition-colors relative inline-flex items-center justify-center"
+    aria-label="View cart"
+  >
+    <i class="ri-shopping-bag-line {{ icon_class }}"></i>
+    {% if show_count %}
+      <span
+        x-show="itemCount > 0"
+        x-text="itemCount > 99 ? '99+' : itemCount"
+        x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0 scale-50"
+        x-transition:enter-end="opacity-100 scale-100"
+        class="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs min-w-5 h-5 px-1 rounded-full flex items-center justify-center font-medium"
+      ></span>
+    {% endif %}
+  </a>
+</div>

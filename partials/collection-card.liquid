@@ -1,0 +1,55 @@
+{% assign show_product_count = show_product_count | default: true %}
+{% assign image_ratio = image_ratio | default: 'aspect-[4/5]' %}
+{% assign overlay_opacity = overlay_opacity | default: 'bg-gradient-to-t from-black/70 via-black/20 to-transparent' %}
+
+<article class="group relative overflow-hidden rounded-2xl shadow-lg transition-shadow duration-500 hover:shadow-2xl" data-collection-handle="{{ collection.handle }}">
+  <a href="{{ collection.url }}" class="block">
+    <div class="relative {{ image_ratio }} overflow-hidden">
+      {% if collection.image %}
+        <img
+          src="{{ collection.image.src }}"
+          alt="{{ collection.image.alt | escape | default: collection.title }}"
+          class="w-full h-full object-cover transition-all duration-1000 ease-out group-hover:scale-105"
+          loading="lazy"
+        >
+      {% elsif collection.products.first.featured_image %}
+        <img
+          src="{{ collection.products.first.featured_image.src }}"
+          alt="{{ collection.title }}"
+          class="w-full h-full object-cover transition-all duration-1000 ease-out group-hover:scale-105"
+          loading="lazy"
+        >
+      {% else %}
+        <div class="w-full h-full bg-gradient-to-br from-neutral-200 to-neutral-300 flex items-center justify-center">
+          <i class="ri-folder-image-line text-6xl text-neutral-400"></i>
+        </div>
+      {% endif %}
+
+      <div class="absolute inset-0 {{ overlay_opacity }} transition-opacity duration-500"></div>
+
+      <div class="absolute inset-0 flex flex-col items-start justify-end p-6 md:p-8">
+        {% if show_product_count %}
+          <p class="text-[11px] text-white/70 uppercase tracking-[0.25em] mb-2">
+            {{ collection.products_count }} {{ collection.products_count | pluralize: 'piece', 'pieces' }}
+          </p>
+        {% endif %}
+
+        <h3 class="text-2xl md:text-3xl font-heading font-semibold text-white leading-tight mb-4">
+          {{ collection.title }}
+        </h3>
+
+        <span class="inline-flex items-center gap-3 text-white text-sm font-medium tracking-wide group/btn">
+          <span class="relative">
+            Explore Collection
+            <span class="absolute bottom-0 left-0 w-0 h-px bg-white transition-all duration-500 group-hover:w-full"></span>
+          </span>
+          <i class="ri-arrow-right-line transition-transform duration-500 group-hover:translate-x-1"></i>
+        </span>
+      </div>
+
+      <div class="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center opacity-0 -translate-y-2 transition-all duration-500 group-hover:opacity-100 group-hover:translate-y-0">
+        <i class="ri-arrow-right-up-line text-white text-lg"></i>
+      </div>
+    </div>
+  </a>
+</article>

@@ -1,0 +1,107 @@
+{% assign color_option_name = color_option_name | default: 'Color' %}
+{% assign size_option_name = size_option_name | default: 'Size' %}
+
+<div class="space-y-6">
+  {% for option in product.options_with_values %}
+    <div class="space-y-3">
+      <div class="flex items-center justify-between">
+        <label class="text-sm font-medium">
+          {{ option.name }}
+        </label>
+        <span class="text-sm text-muted-foreground" x-text="selectedOptions['{{ option.name }}']"></span>
+      </div>
+
+      {% if option.name == color_option_name %}
+        <!-- Color Swatches -->
+        <div class="flex flex-wrap gap-2">
+          {% for value in option.values %}
+            {% assign color_handle = value | handleize %}
+            <button
+              type="button"
+              class="w-10 h-10 rounded-full border-2 transition-all relative"
+              :class="selectedOptions['{{ option.name }}'] === '{{ value }}'
+                ? 'border-primary ring-2 ring-primary ring-offset-2'
+                : 'border-border hover:border-muted-foreground'"
+              @click="selectOption('{{ option.name }}', '{{ value }}')"
+              title="{{ value }}"
+              aria-label="Select {{ option.name }}: {{ value }}"
+            >
+              <span
+                class="absolute inset-1 rounded-full"
+                style="background-color: {{ color_handle }};"
+              ></span>
+              {% comment %} For colors that don't map to CSS colors, show the name {% endcomment %}
+              {% assign common_colors = 'black,white,red,blue,green,yellow,orange,purple,pink,brown,gray,grey,navy,beige,cream,gold,silver' | split: ',' %}
+              {% unless common_colors contains color_handle %}
+                <span class="absolute inset-0 flex items-center justify-center text-xs font-medium">
+                  {{ value | truncate: 2, '' }}
+                </span>
+              {% endunless %}
+            </button>
+          {% endfor %}
+        </div>
+
+      {% elsif option.name == size_option_name %}
+        <!-- Size Buttons -->
+        <div class="flex flex-wrap gap-2">
+          {% for value in option.values %}
+            <button
+              type="button"
+              class="min-w-[3rem] h-10 px-3 rounded-lg border text-sm font-medium transition-all"
+              :class="selectedOptions['{{ option.name }}'] === '{{ value }}'
+                ? 'border-primary bg-primary text-primary-foreground'
+                : 'border-border hover:border-primary'"
+              @click="selectOption('{{ option.name }}', '{{ value }}')"
+              aria-label="Select {{ option.name }}: {{ value }}"
+            >
+              {{ value }}
+            </button>
+          {% endfor %}
+        </div>
+
+      {% else %}
+        <!-- Generic Dropdown -->
+        <select
+          class="w-full h-10 px-3 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+          @change="selectOption('{{ option.name }}', $event.target.value)"
+          :value="selectedOptions['{{ option.name }}']"
+        >
+          {% for value in option.values %}
+            <option value="{{ value }}">{{ value }}</option>
+          {% endfor %}
+        </select>
+      {% endif %}
+    </div>
+  {% endfor %}
+
+  <!-- Quantity Selector -->
+  <div class="space-y-3">
+    <label class="text-sm font-medium">Quantity</label>
+    <div class="flex items-center gap-2">
+      <button
+        type="button"
+        class="w-10 h-10 rounded-lg border border-border flex items-center justify-center hover:bg-accent transition-colors disabled:opacity-50"
+        @click="quantity = Math.max(1, quantity - 1)"
+        :disabled="quantity <= 1"
+        aria-label="Decrease quantity"
+      >
+        <i class="ri-subtract-line"></i>
+      </button>
+      <input
+        type="number"
+        class="w-16 h-10 text-center rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+        x-model.number="quantity"
+        min="1"
+        max="99"
+      >
+      <button
+        type="button"
+        class="w-10 h-10 rounded-lg border border-border flex items-center justify-center hover:bg-accent transition-colors"
+        @click="quantity = Math.min(99, quantity + 1)"
+        aria-label="Increase quantity"
+      >
+        <i class="ri-add-line"></i>
+      </button>
+    </div>
+  </div>
+</div>

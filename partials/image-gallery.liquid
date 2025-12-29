@@ -1,0 +1,79 @@
+{% assign gallery_id = gallery_id | default: 'product-gallery' %}
+
+<div
+  class="flex flex-col-reverse md:flex-row gap-4"
+  x-data="imageGallery({ images: {{ product.images | json }} })"
+>
+  <!-- Thumbnails -->
+  <div class="flex md:flex-col gap-2 overflow-x-auto md:overflow-y-auto md:max-h-[500px] pb-2 md:pb-0 md:pr-2">
+    {% for image in product.images %}
+      <button
+        type="button"
+        class="flex-shrink-0 w-16 h-16 md:w-20 md:h-20 rounded-lg overflow-hidden border-2 transition-colors"
+        :class="selectedIndex === {{ forloop.index0 }} ? 'border-primary' : 'border-transparent hover:border-border'"
+        @click="selectImage({{ forloop.index0 }})"
+      >
+        <img
+          src="{{ image.src }}"
+          alt="{{ image.alt | escape | default: product.title }}"
+          class="w-full h-full object-cover"
+          loading="lazy"
+        >
+      </button>
+    {% endfor %}
+  </div>
+
+  <!-- Main Image -->
+  <div class="flex-1 relative">
+    <div class="aspect-square rounded-xl overflow-hidden bg-muted">
+      {% for image in product.images %}
+        <img
+          src="{{ image.src }}"
+          alt="{{ image.alt | escape | default: product.title }}"
+          class="w-full h-full object-cover transition-opacity duration-300"
+          :class="selectedIndex === {{ forloop.index0 }} ? 'opacity-100' : 'opacity-0 absolute inset-0'"
+          loading="{{ forloop.first | if: 'eager', 'lazy' }}"
+        >
+      {% endfor %}
+
+      {% if product.images.size == 0 %}
+        <div class="w-full h-full flex items-center justify-center">
+          <i class="ri-image-line text-6xl text-muted-foreground"></i>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Navigation Arrows -->
+    {% if product.images.size > 1 %}
+      <button
+        type="button"
+        class="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-background/80 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-background transition-colors shadow-md"
+        @click="prevImage"
+        aria-label="Previous image"
+      >
+        <i class="ri-arrow-left-s-line text-xl"></i>
+      </button>
+      <button
+        type="button"
+        class="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-background/80 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-background transition-colors shadow-md"
+        @click="nextImage"
+        aria-label="Next image"
+      >
+        <i class="ri-arrow-right-s-line text-xl"></i>
+      </button>
+
+      <!-- Dots Indicator (mobile) -->
+      <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 md:hidden">
+        {% for image in product.images %}
+          <button
+            type="button"
+            class="w-2 h-2 rounded-full transition-colors"
+            :class="selectedIndex === {{ forloop.index0 }} ? 'bg-primary' : 'bg-background/60'"
+            @click="selectImage({{ forloop.index0 }})"
+            aria-label="View image {{ forloop.index }}"
+          ></button>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+</div>

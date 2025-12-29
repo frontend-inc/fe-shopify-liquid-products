@@ -1,0 +1,152 @@
+{% assign show_vendor = show_vendor | default: true %}
+{% assign show_share = show_share | default: true %}
+{% assign show_buy_now = show_buy_now | default: true %}
+
+<section
+  class="container mx-auto px-4 py-8 md:py-12"
+  x-data="productDetails({
+    product: {{ product | json }},
+    initialVariantId: {{ product.selected_or_first_available_variant.id | default: product.variants.first.id }}
+  })"
+  data-product-id="{{ product.id }}"
+>
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+    <!-- Image Gallery -->
+    <div>
+      {% include 'image-gallery' %}
+    </div>
+
+    <!-- Product Information -->
+    <div class="space-y-6">
+      {% include 'product-info', show_vendor: show_vendor %}
+
+      <hr class="border-border">
+
+      {% if product.has_only_default_variant == false %}
+        {% include 'variant-selector' %}
+        <hr class="border-border">
+      {% else %}
+        <!-- Quantity only for single variant products -->
+        <div class="space-y-3">
+          <label class="text-sm font-medium">Quantity</label>
+          <div class="flex items-center gap-2">
+            <button
+              type="button"
+              class="w-10 h-10 rounded-lg border border-border flex items-center justify-center hover:bg-accent transition-colors disabled:opacity-50"
+              @click="quantity = Math.max(1, quantity - 1)"
+              :disabled="quantity <= 1"
+              aria-label="Decrease quantity"
+            >
+              <i class="ri-subtract-line"></i>
+            </button>
+            <input
+              type="number"
+              class="w-16 h-10 text-center rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              x-model.number="quantity"
+              min="1"
+              max="99"
+            >
+            <button
+              type="button"
+              class="w-10 h-10 rounded-lg border border-border flex items-center justify-center hover:bg-accent transition-colors"
+              @click="quantity = Math.min(99, quantity + 1)"
+              aria-label="Increase quantity"
+            >
+              <i class="ri-add-line"></i>
+            </button>
+          </div>
+        </div>
+        <hr class="border-border">
+      {% endif %}
+
+      {% include 'add-to-cart-button', show_buy_now: show_buy_now %}
+
+      <!-- Additional Info -->
+      <div class="flex items-center gap-4 text-sm text-muted-foreground">
+        <span class="flex items-center gap-1.5">
+          <i class="ri-truck-line"></i>
+          Free shipping over $50
+        </span>
+        <span class="flex items-center gap-1.5">
+          <i class="ri-refresh-line"></i>
+          30-day returns
+        </span>
+      </div>
+
+      {% if show_share %}
+        <!-- Share Buttons -->
+        <div class="flex items-center gap-3">
+          <span class="text-sm text-muted-foreground">Share:</span>
+          <a
+            href="https://www.facebook.com/sharer/sharer.php?u={{ product.url | prepend: shop.url }}"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="p-2 hover:bg-accent rounded-md transition-colors"
+            aria-label="Share on Facebook"
+          >
+            <i class="ri-facebook-line text-lg"></i>
+          </a>
+          <a
+            href="https://twitter.com/intent/tweet?url={{ product.url | prepend: shop.url }}&text={{ product.title | url_encode }}"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="p-2 hover:bg-accent rounded-md transition-colors"
+            aria-label="Share on Twitter"
+          >
+            <i class="ri-twitter-x-line text-lg"></i>
+          </a>
+          <a
+            href="https://pinterest.com/pin/create/button/?url={{ product.url | prepend: shop.url }}&media={{ product.featured_image.src }}&description={{ product.title | url_encode }}"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="p-2 hover:bg-accent rounded-md transition-colors"
+            aria-label="Share on Pinterest"
+          >
+            <i class="ri-pinterest-line text-lg"></i>
+          </a>
+          <button
+            type="button"
+            class="p-2 hover:bg-accent rounded-md transition-colors"
+            @click="copyLink"
+            aria-label="Copy link"
+          >
+            <i class="ri-link text-lg"></i>
+          </button>
+        </div>
+      {% endif %}
+
+      <!-- Product Description Accordion -->
+      {% if product.description != blank %}
+        <div class="border-t border-border pt-6" x-data="{ open: true }">
+          <button
+            type="button"
+            class="w-full flex items-center justify-between py-2 text-left"
+            @click="open = !open"
+          >
+            <span class="font-medium">Description</span>
+            <i class="ri-arrow-down-s-line text-xl transition-transform" :class="open && 'rotate-180'"></i>
+          </button>
+          <div class="overflow-hidden transition-all" x-show="open" x-collapse>
+            <div class="prose prose-sm max-w-none py-4 text-muted-foreground">
+              {{ product.description }}
+            </div>
+          </div>
+        </div>
+      {% endif %}
+
+      <!-- Tags -->
+      {% if product.tags.size > 0 %}
+        <div class="flex flex-wrap gap-2 pt-4">
+          {% for tag in product.tags %}
+            <a
+              href="/collections/all/{{ tag | handleize }}"
+              class="text-xs px-2 py-1 bg-secondary text-secondary-foreground rounded-full hover:bg-secondary/80 transition-colors"
+            >
+              {{ tag }}
+            </a>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>

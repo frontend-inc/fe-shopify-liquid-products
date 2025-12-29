@@ -1,0 +1,60 @@
+{% assign button_text = button_text | default: 'Add to Cart' %}
+{% assign sold_out_text = sold_out_text | default: 'Sold Out' %}
+{% assign adding_text = adding_text | default: 'Adding...' %}
+{% assign added_text = added_text | default: 'Added!' %}
+{% assign show_buy_now = show_buy_now | default: true %}
+
+<div class="space-y-3">
+  <!-- Add to Cart Button -->
+  <button
+    type="button"
+    class="w-full h-12 bg-primary text-primary-foreground rounded-lg font-medium text-sm transition-all hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+    @click="addToCart"
+    :disabled="loading || !selectedVariant?.available"
+    aria-label="{{ button_text }}"
+  >
+    <template x-if="loading">
+      <span class="flex items-center gap-2">
+        <i class="ri-loader-4-line animate-spin"></i>
+        {{ adding_text }}
+      </span>
+    </template>
+    <template x-if="added && !loading">
+      <span class="flex items-center gap-2">
+        <i class="ri-check-line"></i>
+        {{ added_text }}
+      </span>
+    </template>
+    <template x-if="!loading && !added && selectedVariant?.available">
+      <span class="flex items-center gap-2">
+        <i class="ri-shopping-bag-line"></i>
+        {{ button_text }}
+      </span>
+    </template>
+    <template x-if="!loading && !added && !selectedVariant?.available">
+      <span>{{ sold_out_text }}</span>
+    </template>
+  </button>
+
+  {% if show_buy_now %}
+    <!-- Buy Now Button -->
+    <button
+      type="button"
+      class="w-full h-12 bg-secondary text-secondary-foreground rounded-lg font-medium text-sm transition-all hover:bg-secondary/80 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+      @click="buyNow"
+      :disabled="loading || !selectedVariant?.available"
+      aria-label="Buy now"
+    >
+      <i class="ri-flashlight-line"></i>
+      Buy Now
+    </button>
+  {% endif %}
+
+  <!-- Error Message -->
+  <p
+    class="text-sm text-destructive text-center"
+    x-show="error"
+    x-text="error"
+    x-transition
+  ></p>
+</div>

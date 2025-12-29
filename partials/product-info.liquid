@@ -1,0 +1,65 @@
+{% assign show_vendor = show_vendor | default: true %}
+{% assign show_sku = show_sku | default: false %}
+{% assign show_type = show_type | default: false %}
+
+<div class="space-y-4">
+  <!-- Vendor -->
+  {% if show_vendor and product.vendor %}
+    <p class="text-sm text-muted-foreground uppercase tracking-wider">{{ product.vendor }}</p>
+  {% endif %}
+
+  <!-- Title -->
+  <h1 class="text-3xl md:text-4xl font-heading font-semibold">{{ product.title }}</h1>
+
+  <!-- Price -->
+  <div class="flex items-baseline gap-3">
+    <span class="text-2xl font-semibold" x-text="ShopifyAPI.formatMoney(currentPrice)">
+      {{ product.price | money }}
+    </span>
+    {% if product.compare_at_price > product.price %}
+      <span class="text-lg text-muted-foreground line-through" x-show="currentComparePrice > currentPrice" x-text="ShopifyAPI.formatMoney(currentComparePrice)">
+        {{ product.compare_at_price | money }}
+      </span>
+      <span class="text-sm font-medium text-destructive bg-destructive/10 px-2 py-0.5 rounded" x-show="currentComparePrice > currentPrice">
+        Save <span x-text="Math.round((1 - currentPrice / currentComparePrice) * 100)">{{ product.compare_at_price | minus: product.price | times: 100 | divided_by: product.compare_at_price }}</span>%
+      </span>
+    {% endif %}
+  </div>
+
+  <!-- Availability -->
+  <div class="flex items-center gap-2">
+    <template x-if="selectedVariant?.available">
+      <span class="inline-flex items-center gap-1.5 text-sm text-green-600">
+        <span class="w-2 h-2 bg-green-600 rounded-full"></span>
+        In Stock
+      </span>
+    </template>
+    <template x-if="selectedVariant && !selectedVariant.available">
+      <span class="inline-flex items-center gap-1.5 text-sm text-muted-foreground">
+        <span class="w-2 h-2 bg-muted-foreground rounded-full"></span>
+        Out of Stock
+      </span>
+    </template>
+  </div>
+
+  <!-- SKU -->
+  {% if show_sku %}
+    <p class="text-sm text-muted-foreground" x-show="selectedVariant?.sku">
+      SKU: <span x-text="selectedVariant?.sku"></span>
+    </p>
+  {% endif %}
+
+  <!-- Product Type -->
+  {% if show_type and product.type != blank %}
+    <p class="text-sm text-muted-foreground">
+      Type: {{ product.type }}
+    </p>
+  {% endif %}
+
+  <!-- Short Description -->
+  {% if product.description != blank %}
+    <div class="prose prose-sm max-w-none text-muted-foreground">
+      {{ product.description | strip_html | truncatewords: 30 }}
+    </div>
+  {% endif %}
+</div>
